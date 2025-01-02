@@ -1,0 +1,39 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #app {
+    margin: 20px auto;
+    max-width: 600px;
+  }
+  
+  form {
+    margin-bottom: 20px;
+  }
+  
+  #game-container {
+    display: grid;
+    grid-template-columns: repeat(7, 40px);
+    grid-gap: 2px;
+    justify-content: center;
+    border: black 1px solid;
+  }
+  
+  .grid-cell {
+    width: 40px;
+    height: 40px;
+    background-color: #ddd;
+    border: 1px solid #ccc;
+  }
+  
+  .snake {
+    background-color: green;
+  }
+  
+  .commit {
+    background-color: blue;
+  }
