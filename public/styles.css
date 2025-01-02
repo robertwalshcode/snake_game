@@ -40,13 +40,12 @@ body {
   }
   
   .grid-cell.snake {
-    background-color: purple !important; /* Highlight the snake in red */
-    border: 1px solid black; /* Optional: Add a border for visibility */
+    background-color: purple !important; /* Snake color */
     transition: background-color 0.2s ease; /* Smooth visual transition */
   }
 
 
   /* testing */
-  .grid-cell.target {
+  /* .grid-cell.target {
     outline: 2px solid yellow;
-  }
+  } */

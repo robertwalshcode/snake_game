@@ -132,13 +132,13 @@ function startSnake(commitData) {
   function moveSnake() {
     const head = snake[snake.length - 1];
   
-    // Find the brightest cell (highest commit count)
-    let maxCommits = 0;
+    // Step 1: Find the darkest cell (lowest non-zero commit count)
+    let minCommits = Infinity;
     let targetCell = null;
   
     commitData.forEach((count, index) => {
-      if (count > maxCommits && !snake.includes(index)) {
-        maxCommits = count;
+      if (count > 0 && count < minCommits && !snake.includes(index)) {
+        minCommits = count;
         targetCell = index;
       }
     });
@@ -146,17 +146,16 @@ function startSnake(commitData) {
     // If no target is found, stop the game
     if (targetCell === null) {
       clearInterval(interval);
-      document.getElementById("status").textContent = "Game Over!";
+      document.getElementById("status").textContent = "Game Over! All commits consumed!";
       return;
     }
   
-    // Calculate the row and column for the head and the target cell
+    // Step 2: Define possible moves
     const targetRow = Math.floor(targetCell / 52);
     const targetCol = targetCell % 52;
     const headRow = Math.floor(head / 52);
     const headCol = head % 52;
   
-    // Define possible moves
     const possibleMoves = [
       { direction: 52, rowChange: 1, colChange: 0 },  // Down
       { direction: -52, rowChange: -1, colChange: 0 }, // Up
@@ -164,64 +163,62 @@ function startSnake(commitData) {
       { direction: -1, rowChange: 0, colChange: -1 },  // Left
     ];
   
-    // Filter moves to avoid obstacles and prioritize valid paths
+    // Step 3: Filter valid moves
     const validMoves = possibleMoves.filter((move) => {
       const next = head + move.direction;
       const nextRow = Math.floor(next / 52);
       const nextCol = next % 52;
   
-      // Ensure the move stays within bounds and avoids the snake itself
       return (
         next >= 0 &&
         next < cells.length && // In bounds
         !snake.includes(next) && // Avoid the snake's body
-        Math.abs(nextRow - headRow) <= 1 && // Prevent row wrapping
-        Math.abs(nextCol - headCol) <= 1 // Prevent column wrapping
+        Math.abs(nextRow - headRow) <= 1 &&
+        Math.abs(nextCol - headCol) <= 1
       );
     });
   
-    // Sort valid moves by proximity to the target
+    // Step 4: Sort valid moves by proximity to the target
     validMoves.sort((a, b) => {
       const distanceA =
-        Math.abs(targetRow - (headRow + a.rowChange)) +
-        Math.abs(targetCol - (headCol + a.colChange));
+        Math.abs(Math.floor((head + a.direction) / 52) - targetRow) +
+        Math.abs((head + a.direction) % 52 - targetCol);
       const distanceB =
-        Math.abs(targetRow - (headRow + b.rowChange)) +
-        Math.abs(targetCol - (headCol + b.colChange));
+        Math.abs(Math.floor((head + b.direction) / 52) - targetRow) +
+        Math.abs((head + b.direction) % 52 - targetCol);
       return distanceA - distanceB;
     });
   
-    // Choose the best valid move
+    // Step 5: Choose the best valid move
     let direction = null;
     if (validMoves.length > 0) {
       direction = validMoves[0].direction;
     }
   
-    // If no valid move exists, stop the game
     if (direction === null) {
       clearInterval(interval);
-      document.getElementById("status").textContent = "Game Over!";
+      document.getElementById("status").textContent = "Game Over! Snake is stuck!";
       return;
     }
   
+    // Step 6: Move the snake
     const next = head + direction;
-  
-    // Move the snake
     snake.push(next);
     if (snake.length > snakeLength) {
       snake.shift(); // Keep the snake's length constant
     }
   
-    // Consume the commit at the next cell
+    // Step 7: Consume the commit at the next cell
     if (commitData[next] > 0) {
-      commitData[next] -= 1; // Reduce commit count
-      cells[next].style.backgroundColor = "rgba(0, 0, 0, 0.1)"; // Set to "no commits" color
+      commitData[next] -= 1;
+      cells[next].style.backgroundColor = "rgba(0, 0, 0, 0.1)";
     }
   
     updateSnake(); // Update the snake's position
   }
   
-  const interval = setInterval(moveSnake, 500);
+  
+  const interval = setInterval(moveSnake, 200);
 }
 
 // console.log("Target Cell:", targetCell);
