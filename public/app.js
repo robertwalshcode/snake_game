@@ -110,51 +110,128 @@ function initializeGrid(commitData) {
 function startSnake(commitData) {
   const gridContainer = document.getElementById("game-container");
   const cells = gridContainer.children;
-  let snake = [0, 1, 2, 3]; // Initial snake position
-  let direction = 1; // Moves right (adjusted for grid layout)
+  let snake = [0, 1, 2, 3]; // Initial snake position (4 cells)
+  let direction = 1; // Moves right by default (adjusted for grid layout)
 
   function updateSnake() {
-    // Clear previous snake positions
+    // Log the current snake positions
+    // console.log("Current snake positions:", snake);
+  
+    // Clear all previous snake classes
     Array.from(cells).forEach((cell) => cell.classList.remove("snake"));
-
-    // Add new snake positions
+  
+    // Apply the snake class to the new positions
     snake.forEach((index) => {
-      cells[index].classList.add("snake");
+      if (cells[index]) {
+        cells[index].classList.add("snake");
+        // console.log(`Cell at index ${index} updated to "snake".`);
+      }
     });
   }
 
   function moveSnake() {
-    // Calculate the next position of the snake's head
     const head = snake[snake.length - 1];
-    const next = head + direction;
-
-    // Check for end of grid or other boundaries
-    if (
-      next < 0 ||
-      next >= cells.length ||
-      (direction === 1 && head % 52 === 51) // Snake wraps horizontally
-    ) {
+  
+    // Find the brightest cell (highest commit count)
+    let maxCommits = 0;
+    let targetCell = null;
+  
+    commitData.forEach((count, index) => {
+      if (count > maxCommits && !snake.includes(index)) {
+        maxCommits = count;
+        targetCell = index;
+      }
+    });
+  
+    // If no target is found, stop the game
+    if (targetCell === null) {
       clearInterval(interval);
       document.getElementById("status").textContent = "Game Over!";
       return;
     }
-
+  
+    // Calculate the row and column for the head and the target cell
+    const targetRow = Math.floor(targetCell / 52);
+    const targetCol = targetCell % 52;
+    const headRow = Math.floor(head / 52);
+    const headCol = head % 52;
+  
+    // Define possible moves
+    const possibleMoves = [
+      { direction: 52, rowChange: 1, colChange: 0 },  // Down
+      { direction: -52, rowChange: -1, colChange: 0 }, // Up
+      { direction: 1, rowChange: 0, colChange: 1 },    // Right
+      { direction: -1, rowChange: 0, colChange: -1 },  // Left
+    ];
+  
+    // Filter moves to avoid obstacles and prioritize valid paths
+    const validMoves = possibleMoves.filter((move) => {
+      const next = head + move.direction;
+      const nextRow = Math.floor(next / 52);
+      const nextCol = next % 52;
+  
+      // Ensure the move stays within bounds and avoids the snake itself
+      return (
+        next >= 0 &&
+        next < cells.length && // In bounds
+        !snake.includes(next) && // Avoid the snake's body
+        Math.abs(nextRow - headRow) <= 1 && // Prevent row wrapping
+        Math.abs(nextCol - headCol) <= 1 // Prevent column wrapping
+      );
+    });
+  
+    // Sort valid moves by proximity to the target
+    validMoves.sort((a, b) => {
+      const distanceA =
+        Math.abs(targetRow - (headRow + a.rowChange)) +
+        Math.abs(targetCol - (headCol + a.colChange));
+      const distanceB =
+        Math.abs(targetRow - (headRow + b.rowChange)) +
+        Math.abs(targetCol - (headCol + b.colChange));
+      return distanceA - distanceB;
+    });
+  
+    // Choose the best valid move
+    let direction = null;
+    if (validMoves.length > 0) {
+      direction = validMoves[0].direction;
+    }
+  
+    // If no valid move exists, stop the game
+    if (direction === null) {
+      clearInterval(interval);
+      document.getElementById("status").textContent = "Game Over!";
+      return;
+    }
+  
+    const next = head + direction;
+  
     // Move the snake
     snake.push(next);
     if (snake.length > snakeLength) {
       snake.shift(); // Keep the snake's length constant
     }
-
-    // Consume commit data
+  
+    // Consume the commit at the next cell
     if (commitData[next] > 0) {
       commitData[next] -= 1; // Reduce commit count
-      cells[next].style.backgroundColor = "#1e6823"; // Mark consumed cell
+      cells[next].style.backgroundColor = "rgba(0, 0, 0, 0.1)"; // Set to "no commits" color
     }
-
-    updateSnake();
+  
+    updateSnake(); // Update the snake's position
   }
-
-  // Start the snake movement
-  updateSnake();
+  
   const interval = setInterval(moveSnake, 500);
 }
+
+// console.log("Target Cell:", targetCell);
+// console.log("Snake Head:", head);
+// console.log("Possible Moves:", possibleMoves);
+// console.log("Chosen Direction:", direction);
+
+// console.log(`Target Cell: ${targetCell}, Max Commits: ${maxCommits}`);
+
+// Array.from(cells).forEach((cell, index) => cell.classList.remove("target"));
+// if (targetCell !== null && cells[targetCell]) {
+//   cells[targetCell].classList.add("target");
+// }
