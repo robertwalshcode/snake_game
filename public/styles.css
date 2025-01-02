@@ -20,14 +20,15 @@ body {
     grid-template-columns: repeat(7, 40px);
     grid-gap: 2px;
     justify-content: center;
-    border: black 1px solid;
+    margin: 20px auto;
   }
   
   .grid-cell {
-    width: 40px;
-    height: 40px;
-    background-color: #ddd;
-    border: 1px solid #ccc;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.1); /* Default color */
+    border-radius: 3px; /* Rounded corners like GitHub's */
+    transition: background-color 0.3s ease; /* Smooth color change */
   }
   
   .snake {
@@ -36,4 +37,8 @@ body {
   
   .commit {
     background-color: blue;
+  }
+  
+  .grid-cell.snake {
+    background-color: red; /* Snake color */
   }
