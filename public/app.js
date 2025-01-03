@@ -1,5 +1,5 @@
 const API_BASE = "https://api.github.com";
-const GITHUB_TOKEN = "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";
+const GITHUB_TOKEN = "your_personal_access_token";
 const snakeLength = 4; // The fixed length of the snake
 
 // Extract GitHub handle from URL

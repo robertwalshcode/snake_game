@@ -1,6 +1,17 @@
 # snake_game
 This project visualizes the GitHub commit history of a user in a snake game format.
 
+# Setup
+
+This script requires a GitHub Personal Access Token (PAT) to interact with the GitHub API.
+
+### Steps to Set Up:
+
+1. Go to your GitHub account and create a PAT with the necessary permissions:
+   - Only `read:public_repo` scope is required.  
+   
+2. Paste your PAT in app.js as the value of this variable ``const GITHUB_TOKEN = "your_personal_access_token";``  
+
 # To Use
 Run the server using ``node server.js`` in your terminal.
    
